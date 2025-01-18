@@ -1,0 +1,17 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: GardeniaDreams
+
+  data:
+    mongodb:
+      uri: mongodb://immaculate:notverysecret@localhost:27017/gardenia_dreams?authSource=admin
+      database: gardenia_dreams
+
+springdoc:
+  api-docs:
+    enabled: true
+  swagger-ui:
+    enabled: true
