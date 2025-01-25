@@ -1,8 +1,8 @@
 package com.plantNursery.GardeniaDreams.core;
 
 
-import com.plantNursery.GardeniaDreams.utils.dto.PlantDTO;
+import com.plantNursery.GardeniaDreams.core.model.CreatePlantRequest;
 
 public interface PlantStorageManager {
-    String persist(PlantDTO plantDTO);
+    String persist(CreatePlantRequest createPlantRequest);
 }
