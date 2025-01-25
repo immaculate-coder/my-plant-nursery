@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("api/v1/plants")
 @AllArgsConstructor
 public class PlantController {
-    private PlantPersister plantService;
+    private PlantPersister plantPersister;
 
     @Operation(
             summary = "Persist a new plant",
@@ -27,13 +27,10 @@ public class PlantController {
         }
     )
     @PostMapping
-    ResponseEntity<CreatePlantApiResponse> persistNewPlant(@RequestBody CreatePlantApiRequest createPlantApiRequest) {
-        plantService.persist(from(createPlantApiRequest));
-        return ResponseEntity.status(HttpStatus.CREATED).body(from("dummy-id-123"));
+    ResponseEntity<CreatePlantApiResponse> createNewPlant(@RequestBody CreatePlantApiRequest createPlantApiRequest) {
+        String createdPlantId = plantPersister.persist(from(createPlantApiRequest));
+        return ResponseEntity.status(HttpStatus.CREATED).body(from(createdPlantId));
     }
-
-
-    // mappers -> once it increases as api request increases this can be abstracted to separate file
 
     private static CreatePlantRequest from(CreatePlantApiRequest createPlantApiRequest) {
         return CreatePlantRequest.builder()
