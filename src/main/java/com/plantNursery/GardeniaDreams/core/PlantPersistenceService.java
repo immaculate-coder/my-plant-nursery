@@ -7,8 +7,8 @@ import org.springframework.stereotype.Service;
 
 @Service
 @AllArgsConstructor
-public class PlantServiceImpl implements PlantService{
-    private PlantPersistanceService plantPersistanceService;
+public class PlantPersistenceService implements PlantPersister {
+    private PlantStorageManager plantStorageManager;
 
     @Override
     public void persist(CreatePlantRequest createPlantRequest) {
@@ -19,6 +19,6 @@ public class PlantServiceImpl implements PlantService{
                 .wateringIntervalInDays(createPlantRequest.wateringIntervalInDays())
                 .build();
 
-        plantPersistanceService.persist(plantDTO);
+        plantStorageManager.persist(plantDTO);
     }
 }

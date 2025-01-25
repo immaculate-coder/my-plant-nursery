@@ -2,7 +2,7 @@ package com.plantNursery.GardeniaDreams.api;
 
 import com.plantNursery.GardeniaDreams.api.request.CreatePlantApiRequest;
 import com.plantNursery.GardeniaDreams.api.response.CreatePlantApiResponse;
-import com.plantNursery.GardeniaDreams.core.PlantService;
+import com.plantNursery.GardeniaDreams.core.PlantPersister;
 import com.plantNursery.GardeniaDreams.core.model.CreatePlantRequest;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("api/v1/plants")
 @AllArgsConstructor
 public class PlantController {
-    private PlantService plantService;
+    private PlantPersister plantService;
 
     @Operation(
             summary = "Persist a new plant",
