@@ -16,13 +16,12 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.Date;
 
-import static org.mockito.ArgumentMatchers.any;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(controllers = PlantController.class)
 @AutoConfigureMockMvc(addFilters = false)
-public class PlantControllerTest {
+public class PlantControllerIntegrationTest {
 
     @Autowired
     private MockMvc mockMvc;
@@ -35,27 +34,46 @@ public class PlantControllerTest {
 
     @Test
     void createNewPlant_shouldReturnId() throws Exception {
-        CreatePlantApiRequest request = CreatePlantApiRequest.builder()
-                .name("Test tree")
-                .ageInDays(200)
-                .lastWateredDate(new Date())
-                .wateringIntervalInDays(10)
-                .build();
-
+        Date lastWateredDate = new Date();
+        CreatePlantApiRequest apiRequest = getApiRequest(lastWateredDate);
         String mockedPlantId = "dummy-id-123";
-        Mockito.when(plantPersister.persist(any(CreatePlantRequest.class))).thenReturn(mockedPlantId);
+        CreatePlantRequest request = getRequest(lastWateredDate);
 
-        CreatePlantApiResponse expectedResponse = CreatePlantApiResponse.builder()
-                .id(mockedPlantId)
-                .message("Plant saved successfully")
-                .build();
+        Mockito.when(plantPersister.persist(request)).thenReturn(mockedPlantId);
+
+        CreatePlantApiResponse expectedResponse = getExpectedResponse(mockedPlantId);
 
         mockMvc.perform(post("/api/v1/plants")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(request)))
+                        .content(objectMapper.writeValueAsString(apiRequest)))
                 .andExpect(status().isCreated())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.id").value(expectedResponse.id()))
                 .andExpect(jsonPath("$.message").value(expectedResponse.message()));
+    }
+
+    private static CreatePlantApiResponse getExpectedResponse(String mockedPlantId) {
+        return CreatePlantApiResponse.builder()
+                .id(mockedPlantId)
+                .message("Plant saved successfully")
+                .build();
+    }
+
+    private static CreatePlantRequest getRequest(Date lastWateredDate) {
+        return CreatePlantRequest.builder()
+                .name("Test tree")
+                .ageInDays(200)
+                .lastWateredDate(lastWateredDate)
+                .wateringIntervalInDays(10)
+                .build();
+    }
+
+    private static CreatePlantApiRequest getApiRequest(Date lastWateredDate) {
+        return CreatePlantApiRequest.builder()
+                .name("Test tree")
+                .ageInDays(200)
+                .lastWateredDate(lastWateredDate)
+                .wateringIntervalInDays(10)
+                .build();
     }
 }
