@@ -9,7 +9,7 @@ import java.util.Date;
 
 @Builder
 @Data
-@Document(collation = "plants")
+@Document(collection = "plants")
 public class PlantDocument {
     @Id
     private String id;
