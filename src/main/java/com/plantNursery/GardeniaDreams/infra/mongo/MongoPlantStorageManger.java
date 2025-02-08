@@ -9,6 +9,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @AllArgsConstructor
@@ -23,6 +24,16 @@ public class MongoPlantStorageManger implements PlantStorageManager {
     public List<Plant> getAllPlants() {
         List<PlantDocument> plantDocuments = repository.findAll();
         return plantDocuments.stream().map(MongoPlantStorageManger::from).toList();
+    }
+
+    @Override
+    public Plant getPlantById(String id) {
+        Optional<PlantDocument> plantDocument = repository.findById(id);
+        if(plantDocument.isPresent()) {
+            return from(plantDocument.get());
+        } else {
+            throw new RuntimeException("Invalid plant Id");
+        }
     }
 
     private static PlantDocument from(CreatePlantRequest createPlantRequest) {

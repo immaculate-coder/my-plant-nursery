@@ -21,4 +21,9 @@ public class PlantPersistenceService implements PlantPersister {
     public List<Plant> getAllPlants() {
         return plantStorageManager.getAllPlants();
     }
+
+    @Override
+    public Plant getPlantById(String id) {
+        return plantStorageManager.getPlantById(id);
+    }
 }

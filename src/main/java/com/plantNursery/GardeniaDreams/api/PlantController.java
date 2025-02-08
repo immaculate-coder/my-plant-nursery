@@ -54,6 +54,18 @@ public class PlantController {
         return ResponseEntity.ok(response);
     }
 
+    @Operation(
+            summary = "get plant by id",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "Plant fetched successfully")
+            }
+    )
+    @GetMapping("/{id}")
+    ResponseEntity<PlantResponse> getPlantById(@PathVariable String id) {
+        PlantResponse response = from(plantPersister.getPlantById(id));
+        return ResponseEntity.ok(response);
+    }
+
     private static CreatePlantRequest from(CreatePlantApiRequest createPlantApiRequest) {
         return CreatePlantRequest.builder()
                 .name(createPlantApiRequest.name())
