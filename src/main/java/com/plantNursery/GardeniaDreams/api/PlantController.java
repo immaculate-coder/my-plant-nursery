@@ -34,6 +34,12 @@ public class PlantController {
         return ResponseEntity.status(HttpStatus.CREATED).body(from(createdPlantId));
     }
 
+    @Operation(
+            summary = "get all plant",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "Plants fetched successfully")
+            }
+    )
     @GetMapping
     ResponseEntity<GetAllPlantsResponse> getAllPlants() {
         List<PlantResponse> plants = plantPersister.getAllPlants()
