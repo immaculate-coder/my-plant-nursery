@@ -39,8 +39,7 @@ public class PlantController {
     @Operation(
             summary = "get all plants",
             responses = {
-                    @ApiResponse(responseCode = "200", description = "Plants fetched successfully"),
-                    @ApiResponse(responseCode = "404", description = "Plants not found")
+                    @ApiResponse(responseCode = "200", description = "Plants fetched successfully")
             }
     )
     @GetMapping
@@ -49,18 +48,15 @@ public class PlantController {
                 .stream()
                 .map(PlantController::from)
                 .toList();
-        GetAllPlantsApiResponse response = GetAllPlantsApiResponse.builder()
-                .plantsCount(plants.size())
-                .plants(plants)
-                .build();
 
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(from(plants));
     }
 
     @Operation(
             summary = "get plant by id",
             responses = {
-                    @ApiResponse(responseCode = "200", description = "Plant fetched successfully")
+                    @ApiResponse(responseCode = "200", description = "Plant fetched successfully"),
+                    @ApiResponse(responseCode = "404", description = "Plant not found")
             }
     )
     @GetMapping("/{id}")
@@ -92,6 +88,13 @@ public class PlantController {
                 .ageInDays(plant.ageInDays())
                 .lastWateredDate(plant.lastWateredDate())
                 .wateringIntervalInDays(plant.wateringIntervalInDays())
+                .build();
+    }
+
+    private static GetAllPlantsApiResponse from(List<PlantApiResponse> plants) {
+        return GetAllPlantsApiResponse.builder()
+                .plantsCount(plants.size())
+                .plants(plants)
                 .build();
     }
 
