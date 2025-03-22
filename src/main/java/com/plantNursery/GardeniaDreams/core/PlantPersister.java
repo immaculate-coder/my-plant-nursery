@@ -7,8 +7,4 @@ import java.util.List;
 
 public interface PlantPersister {
     String persist(CreatePlantRequest createPlantRequest);
-
-    List<Plant> getAllPlants();
-
-    Plant getPlantById(String id);
 }

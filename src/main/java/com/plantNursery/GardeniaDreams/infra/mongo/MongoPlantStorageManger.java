@@ -20,38 +20,12 @@ public class MongoPlantStorageManger implements PlantStorageManager {
         return repository.save(from(createPlantRequest)).getId();
     }
 
-    @Override
-    public List<Plant> getAllPlants() {
-        List<PlantDocument> plantDocuments = repository.findAll();
-        return plantDocuments.stream().map(MongoPlantStorageManger::from).toList();
-    }
-
-    @Override
-    public Plant getPlantById(String id) {
-        Optional<PlantDocument> plantDocument = repository.findById(id);
-        if(plantDocument.isPresent()) {
-            return from(plantDocument.get());
-        } else {
-            throw new RuntimeException("Invalid plant Id");
-        }
-    }
-
     private static PlantDocument from(CreatePlantRequest createPlantRequest) {
         return PlantDocument.builder()
                 .name(createPlantRequest.name())
                 .wateringIntervalInDays(createPlantRequest.wateringIntervalInDays())
                 .ageInDays(createPlantRequest.ageInDays())
                 .lastWateredDate(createPlantRequest.lastWateredDate())
-                .build();
-    }
-
-    private static Plant from(PlantDocument plantDocument) {
-        return Plant.builder()
-                .id(plantDocument.getId())
-                .name(plantDocument.getName())
-                .wateringIntervalInDays(plantDocument.getWateringIntervalInDays())
-                .ageInDays(plantDocument.getAgeInDays())
-                .lastWateredDate(plantDocument.getLastWateredDate())
                 .build();
     }
 }

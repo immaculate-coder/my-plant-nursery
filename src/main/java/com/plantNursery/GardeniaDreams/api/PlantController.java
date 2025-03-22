@@ -2,8 +2,9 @@ package com.plantNursery.GardeniaDreams.api;
 
 import com.plantNursery.GardeniaDreams.api.request.CreatePlantApiRequest;
 import com.plantNursery.GardeniaDreams.api.response.CreatePlantApiResponse;
-import com.plantNursery.GardeniaDreams.api.response.GetAllPlantsResponse;
-import com.plantNursery.GardeniaDreams.api.response.PlantResponse;
+import com.plantNursery.GardeniaDreams.api.response.GetAllPlantsApiResponse;
+import com.plantNursery.GardeniaDreams.api.response.PlantApiResponse;
+import com.plantNursery.GardeniaDreams.core.PlantFetcher;
 import com.plantNursery.GardeniaDreams.core.PlantPersister;
 import com.plantNursery.GardeniaDreams.core.model.CreatePlantRequest;
 import com.plantNursery.GardeniaDreams.core.model.Plant;
@@ -21,6 +22,7 @@ import java.util.List;
 @AllArgsConstructor
 public class PlantController {
     private PlantPersister plantPersister;
+    private PlantFetcher plantFetcher;
 
     @Operation(
             summary = "Persist a new plant",
@@ -35,19 +37,20 @@ public class PlantController {
     }
 
     @Operation(
-            summary = "get all plant",
+            summary = "get all plants",
             responses = {
-                    @ApiResponse(responseCode = "200", description = "Plants fetched successfully")
+                    @ApiResponse(responseCode = "200", description = "Plants fetched successfully"),
+                    @ApiResponse(responseCode = "404", description = "Plants not found")
             }
     )
     @GetMapping
-    ResponseEntity<GetAllPlantsResponse> getAllPlants() {
-        List<PlantResponse> plants = plantPersister.getAllPlants()
+    ResponseEntity<GetAllPlantsApiResponse> getAllPlants() {
+        List<PlantApiResponse> plants = plantFetcher.getAllPlants()
                 .stream()
                 .map(PlantController::from)
                 .toList();
-        GetAllPlantsResponse response = GetAllPlantsResponse.builder()
-                .numPlants(plants.size())
+        GetAllPlantsApiResponse response = GetAllPlantsApiResponse.builder()
+                .plantsCount(plants.size())
                 .plants(plants)
                 .build();
 
@@ -61,8 +64,8 @@ public class PlantController {
             }
     )
     @GetMapping("/{id}")
-    ResponseEntity<PlantResponse> getPlantById(@PathVariable String id) {
-        PlantResponse response = from(plantPersister.getPlantById(id));
+    ResponseEntity<PlantApiResponse> getPlantById(@PathVariable String id) {
+        PlantApiResponse response = from(plantFetcher.getPlantById(id));
         return ResponseEntity.ok(response);
     }
 
@@ -82,8 +85,8 @@ public class PlantController {
                 .build();
     }
 
-    private static PlantResponse from(Plant plant) {
-        return PlantResponse.builder()
+    private static PlantApiResponse from(Plant plant) {
+        return PlantApiResponse.builder()
                 .id(plant.id())
                 .name(plant.name())
                 .ageInDays(plant.ageInDays())

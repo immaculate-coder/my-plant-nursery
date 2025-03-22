@@ -8,7 +8,4 @@ import java.util.List;
 
 public interface PlantStorageManager {
     String persist(CreatePlantRequest createPlantRequest);
-    List<Plant> getAllPlants();
-
-    Plant getPlantById(String id);
 }
