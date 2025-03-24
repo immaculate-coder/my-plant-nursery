@@ -14,7 +14,7 @@ public class PlantPersistenceServiceTest {
     private PlantStorageManager plantStorageManager;
 
     @BeforeEach
-    void setUp() {
+    void setup() {
         plantStorageManager = mock(PlantStorageManager.class);
         persistenceService = new PlantPersistenceService(plantStorageManager);
     }
