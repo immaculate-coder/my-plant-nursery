@@ -35,7 +35,7 @@ class MongoPlantStorageMangerIntegrationTest {
     private MongoPlantRepository repository;
 
     @Test
-    void testPersistPlant() {
+    void persistPlant_ShouldReturnId() {
         Date today = new Date();
         String plantName = "Test Plant";
         int ageInDays = 100;

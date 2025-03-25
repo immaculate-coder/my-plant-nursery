@@ -2,10 +2,14 @@ package com.plantNursery.GardeniaDreams.infra.mongo;
 
 import com.plantNursery.GardeniaDreams.core.PlantStorageManager;
 import com.plantNursery.GardeniaDreams.core.model.CreatePlantRequest;
+import com.plantNursery.GardeniaDreams.core.model.Plant;
 import com.plantNursery.GardeniaDreams.infra.mongo.entities.PlantDocument;
 import com.plantNursery.GardeniaDreams.infra.mongo.repo.MongoPlantRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.Optional;
 
 @Service
 @AllArgsConstructor
