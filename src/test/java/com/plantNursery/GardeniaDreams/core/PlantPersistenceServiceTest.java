@@ -1,5 +1,6 @@
 package com.plantNursery.GardeniaDreams.core;
 
+import com.plantNursery.GardeniaDreams.core.exceptions.PlantNotFoundException;
 import com.plantNursery.GardeniaDreams.core.model.CreatePlantRequest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -7,6 +8,7 @@ import org.junit.jupiter.api.Test;
 import java.util.Date;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
 public class PlantPersistenceServiceTest {
@@ -39,6 +41,22 @@ public class PlantPersistenceServiceTest {
         verify(plantStorageManager).deletePlant(plantId);
         assertEquals(plantId, actualPlantId, "Plant id mismatch");
 
+    }
+
+    @Test
+    void deletePlant_shouldThrowPlantNotFoundException() {
+        String plantId = "non-existent-id";
+        doThrow(new PlantNotFoundException("Plant not found with id : " + plantId))
+                .when(plantStorageManager).deletePlant(plantId);
+
+        PlantNotFoundException exception = assertThrows(
+                PlantNotFoundException.class,
+                () -> persistenceService.deletePlant(plantId),
+                "Expected deletePlant() to throw PlantNotFoundException"
+        );
+
+        assertEquals("Plant not found with id : " + plantId, exception.getMessage());
+        verify(plantStorageManager, times(1)).deletePlant(plantId);
     }
 
     private static CreatePlantRequest getRequest() {

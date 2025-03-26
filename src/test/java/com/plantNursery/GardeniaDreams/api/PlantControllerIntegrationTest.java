@@ -25,6 +25,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
+import static org.mockito.Mockito.doThrow;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -118,11 +119,11 @@ public class PlantControllerIntegrationTest {
     @Test
     void deletePlantById_shouldReturnSuccess() throws Exception {
         String plantId = "test-id-1";
-
+        Mockito.when(plantPersister.deletePlant(plantId)).thenReturn(plantId);
         mockMvc.perform(delete("/api/v1/plants/{id}", plantId))
                 .andExpect(status().isOk())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(content().string("Plant deleted successfully"));
+                .andExpect(content().contentType("text/plain;charset=UTF-8"))
+                .andExpect(content().string("Plant deleted successfully with id : " + plantId));
     }
 
     @Test
@@ -131,6 +132,9 @@ public class PlantControllerIntegrationTest {
         String errorMessage = "Plant not found with id : " + nonExistentPlantId;
 
         ApiErrorResponse errorResponse = ApiErrorResponse.of(HttpStatus.NOT_FOUND, nonExistentPlantId);
+
+        doThrow(new PlantNotFoundException("Plant not found with id : " + nonExistentPlantId))
+                .when(plantPersister).deletePlant(nonExistentPlantId);
 
         mockMvc.perform(delete("/api/v1/plants/{id}", nonExistentPlantId))
                 .andExpect(status().isNotFound())

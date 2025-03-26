@@ -16,6 +16,6 @@ public class PlantPersistenceService implements PlantPersister {
 
     @Override
     public String deletePlant(String id) {
-        throw new UnsupportedOperationException();
+        return plantStorageManager.deletePlant(id);
     }
 }

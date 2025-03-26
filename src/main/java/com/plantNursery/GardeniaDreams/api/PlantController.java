@@ -74,7 +74,8 @@ public class PlantController {
     )
     @DeleteMapping("/{id}")
     ResponseEntity<String> deletePlantById(@PathVariable String id) {
-        return ResponseEntity.internalServerError().body("Not implemented");
+        String deletedPlantId = plantPersister.deletePlant(id);
+        return ResponseEntity.ok("Plant deleted successfully with id : " + deletedPlantId);
     }
 
     private static CreatePlantRequest from(CreatePlantApiRequest createPlantApiRequest) {
