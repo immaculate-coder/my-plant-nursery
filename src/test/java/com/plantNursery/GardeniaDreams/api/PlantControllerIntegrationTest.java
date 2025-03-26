@@ -25,8 +25,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(controllers = PlantController.class)
@@ -111,6 +110,29 @@ public class PlantControllerIntegrationTest {
         ApiErrorResponse errorResponse = ApiErrorResponse.of(HttpStatus.NOT_FOUND, nonExistentPlantId);
 
         mockMvc.perform(get("/api/v1/plants/{id}", nonExistentPlantId))
+                .andExpect(status().isNotFound())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.message").value(errorMessage));
+    }
+
+    @Test
+    void deletePlantById_shouldReturnSuccess() throws Exception {
+        String plantId = "test-id-1";
+
+        mockMvc.perform(delete("/api/v1/plants/{id}", plantId))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(content().string("Plant deleted successfully"));
+    }
+
+    @Test
+    void deletePlantById_shouldReturnNotFound() throws Exception {
+        String nonExistentPlantId = "invalid-id";
+        String errorMessage = "Plant not found with id : " + nonExistentPlantId;
+
+        ApiErrorResponse errorResponse = ApiErrorResponse.of(HttpStatus.NOT_FOUND, nonExistentPlantId);
+
+        mockMvc.perform(delete("/api/v1/plants/{id}", nonExistentPlantId))
                 .andExpect(status().isNotFound())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.message").value(errorMessage));

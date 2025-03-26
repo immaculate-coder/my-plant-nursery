@@ -65,6 +65,18 @@ public class PlantController {
         return ResponseEntity.ok(response);
     }
 
+    @Operation(
+            summary = "delete plant by id",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "Plant deleted successfully"),
+                    @ApiResponse(responseCode = "404", description = "Plant not found")
+            }
+    )
+    @DeleteMapping("/{id}")
+    ResponseEntity<String> deletePlantById(@PathVariable String id) {
+        return ResponseEntity.internalServerError().body("Not implemented");
+    }
+
     private static CreatePlantRequest from(CreatePlantApiRequest createPlantApiRequest) {
         return CreatePlantRequest.builder()
                 .name(createPlantApiRequest.name())
