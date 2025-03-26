@@ -20,6 +20,11 @@ public class MongoPlantStorageManger implements PlantStorageManager {
         return repository.save(from(createPlantRequest)).getId();
     }
 
+    @Override
+    public String deletePlant(String id) {
+        throw new UnsupportedOperationException();
+    }
+
     private static PlantDocument from(CreatePlantRequest createPlantRequest) {
         return PlantDocument.builder()
                 .name(createPlantRequest.name())

@@ -30,6 +30,17 @@ public class PlantPersistenceServiceTest {
         assertEquals(expectedPlantId, actualPlantId, "Plant id mismatch");
     }
 
+    @Test
+    void deletePlant_shouldReturnPlantId() {
+        String plantId = "test-id-1";
+        when(plantStorageManager.deletePlant(plantId)).thenReturn(plantId);
+
+        String actualPlantId = persistenceService.deletePlant(plantId);
+        verify(plantStorageManager).deletePlant(plantId);
+        assertEquals(plantId, actualPlantId, "Plant id mismatch");
+
+    }
+
     private static CreatePlantRequest getRequest() {
         return CreatePlantRequest.builder()
                 .name("Test Plant")
