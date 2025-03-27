@@ -1,8 +1,10 @@
 package com.plantNursery.GardeniaDreams.infra.mongo;
 
+import com.plantNursery.GardeniaDreams.core.exceptions.PlantNotFoundException;
 import com.plantNursery.GardeniaDreams.core.model.CreatePlantRequest;
 import com.plantNursery.GardeniaDreams.infra.mongo.entities.PlantDocument;
 import com.plantNursery.GardeniaDreams.infra.mongo.repo.MongoPlantRepository;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -15,6 +17,7 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 import java.util.Date;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @SpringBootTest
 @Testcontainers
@@ -34,28 +37,59 @@ class MongoPlantStorageMangerIntegrationTest {
     @Autowired
     private MongoPlantRepository repository;
 
+    @BeforeEach
+    void setup() {
+        repository.deleteAll();
+    }
+
     @Test
     void persistPlant_ShouldReturnId() {
-        Date today = new Date();
-        String plantName = "Test Plant";
-        int ageInDays = 100;
-        int wateringIntervalInDays = 20;
-        CreatePlantRequest createPlantRequest = CreatePlantRequest.builder()
-                .name(plantName)
-                .ageInDays(ageInDays)
-                .lastWateredDate(today)
-                .wateringIntervalInDays(wateringIntervalInDays)
-                .build();
-
+        CreatePlantRequest createPlantRequest = getTestPlantRequest();
         String id = storageManger.persist(createPlantRequest);
         assertThat(id).isNotNull();
 
         PlantDocument savedDocument = repository.findById(id)
                 .orElseThrow(() -> new AssertionError("PlantDocument not found for id: " + id));
 
-        assertThat(savedDocument.getName()).isEqualTo(plantName);
-        assertThat(savedDocument.getWateringIntervalInDays()).isEqualTo(wateringIntervalInDays);
-        assertThat(savedDocument.getAgeInDays()).isEqualTo(ageInDays);
-        assertThat(savedDocument.getLastWateredDate()).isEqualTo(today);
+        assertThat(savedDocument.getName()).isEqualTo(createPlantRequest.name());
+        assertThat(savedDocument.getWateringIntervalInDays()).isEqualTo(createPlantRequest.wateringIntervalInDays());
+        assertThat(savedDocument.getAgeInDays()).isEqualTo(createPlantRequest.ageInDays());
+        assertThat(savedDocument.getLastWateredDate()).isEqualTo(createPlantRequest.lastWateredDate());
+    }
+
+    @Test
+    void deletePlant_ShouldDeletePlant() {
+        CreatePlantRequest createPlantRequest = getTestPlantRequest();
+        String testPlantId = storageManger.persist(createPlantRequest);
+        assertThat(testPlantId).isNotNull();
+
+        String deletedPlantId = storageManger.deletePlant(testPlantId);
+        boolean isPlantPresent = repository.existsById(deletedPlantId);
+
+        assertThat(testPlantId).isEqualTo(deletedPlantId);
+        assertThat(isPlantPresent).isEqualTo(false);
+    }
+
+    @Test
+    void deletePlant_shouldThrowPlantNotFoundException() {
+        String testPlantId = "invalid-plant-id";
+
+        assertThatThrownBy(() -> storageManger.deletePlant(testPlantId))
+                .isInstanceOf(PlantNotFoundException.class)
+                .hasMessage("Plant not found with id : " + testPlantId);
+
+    }
+
+    private static CreatePlantRequest getTestPlantRequest() {
+        Date today = new Date();
+        String plantName = "Test Plant";
+        int ageInDays = 100;
+        int wateringIntervalInDays = 20;
+        return CreatePlantRequest.builder()
+                .name(plantName)
+                .ageInDays(ageInDays)
+                .lastWateredDate(today)
+                .wateringIntervalInDays(wateringIntervalInDays)
+                .build();
     }
 }

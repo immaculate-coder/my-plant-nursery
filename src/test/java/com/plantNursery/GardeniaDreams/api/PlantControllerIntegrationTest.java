@@ -131,8 +131,6 @@ public class PlantControllerIntegrationTest {
         String nonExistentPlantId = "invalid-id";
         String errorMessage = "Plant not found with id : " + nonExistentPlantId;
 
-        ApiErrorResponse errorResponse = ApiErrorResponse.of(HttpStatus.NOT_FOUND, nonExistentPlantId);
-
         doThrow(new PlantNotFoundException("Plant not found with id : " + nonExistentPlantId))
                 .when(plantPersister).deletePlant(nonExistentPlantId);
 
