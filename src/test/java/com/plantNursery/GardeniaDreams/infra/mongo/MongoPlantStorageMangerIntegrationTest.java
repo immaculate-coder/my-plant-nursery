@@ -60,7 +60,7 @@ class MongoPlantStorageMangerIntegrationTest {
     @Test
     void deletePlant_ShouldDeletePlant() {
         CreatePlantRequest createPlantRequest = getTestPlantRequest();
-        String testPlantId = storageManger.persist(createPlantRequest);
+        String testPlantId = repository.save(getTestPlantDocument(createPlantRequest)).getId();
         assertThat(testPlantId).isNotNull();
 
         String deletedPlantId = storageManger.deletePlant(testPlantId);
@@ -90,6 +90,15 @@ class MongoPlantStorageMangerIntegrationTest {
                 .ageInDays(ageInDays)
                 .lastWateredDate(today)
                 .wateringIntervalInDays(wateringIntervalInDays)
+                .build();
+    }
+
+    private static PlantDocument getTestPlantDocument(CreatePlantRequest createPlantRequest) {
+        return PlantDocument.builder()
+                .name(createPlantRequest.name())
+                .wateringIntervalInDays(createPlantRequest.wateringIntervalInDays())
+                .ageInDays(createPlantRequest.ageInDays())
+                .lastWateredDate(createPlantRequest.lastWateredDate())
                 .build();
     }
 }
