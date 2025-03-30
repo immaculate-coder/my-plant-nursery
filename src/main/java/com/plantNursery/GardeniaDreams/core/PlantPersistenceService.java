@@ -13,4 +13,9 @@ public class PlantPersistenceService implements PlantPersister {
     public String persist(CreatePlantRequest createPlantRequest) {
         return plantStorageManager.persist(createPlantRequest);
     }
+
+    @Override
+    public String deletePlant(String id) {
+        return plantStorageManager.deletePlant(id);
+    }
 }
