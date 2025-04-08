@@ -6,6 +6,5 @@ import java.util.List;
 
 public interface PlantFetcher {
     List<Plant> getAllPlants();
-
     Plant getPlantById(String id);
 }
