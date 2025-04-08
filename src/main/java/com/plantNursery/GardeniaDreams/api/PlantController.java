@@ -1,6 +1,7 @@
 package com.plantNursery.GardeniaDreams.api;
 
 import com.plantNursery.GardeniaDreams.api.request.CreatePlantApiRequest;
+import com.plantNursery.GardeniaDreams.api.request.UpdatePlantApiRequest;
 import com.plantNursery.GardeniaDreams.api.response.CreatePlantApiResponse;
 import com.plantNursery.GardeniaDreams.api.response.GetAllPlantsApiResponse;
 import com.plantNursery.GardeniaDreams.api.response.PlantApiResponse;
@@ -8,6 +9,7 @@ import com.plantNursery.GardeniaDreams.core.PlantFetcher;
 import com.plantNursery.GardeniaDreams.core.PlantPersister;
 import com.plantNursery.GardeniaDreams.core.model.CreatePlantRequest;
 import com.plantNursery.GardeniaDreams.core.model.Plant;
+import com.plantNursery.GardeniaDreams.core.model.UpdatePlantRequest;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import lombok.AllArgsConstructor;
@@ -78,12 +80,33 @@ public class PlantController {
         return ResponseEntity.ok("Plant deleted successfully with id : " + deletedPlantId);
     }
 
+    @Operation(
+            summary = "update plant by id",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "Plant updated successfully"),
+                    @ApiResponse(responseCode = "404", description = "Plant not found")
+            }
+    )
+    @PatchMapping("/{id}")
+    ResponseEntity<PlantApiResponse> updatePlantById(@PathVariable String id, @RequestBody UpdatePlantApiRequest updatePlantApiRequest) {
+        PlantApiResponse response = from(plantPersister.updatePlant(id, from(updatePlantApiRequest)));
+        return ResponseEntity.ok(response);
+    }
+
     private static CreatePlantRequest from(CreatePlantApiRequest createPlantApiRequest) {
         return CreatePlantRequest.builder()
                 .name(createPlantApiRequest.name())
                 .ageInDays(createPlantApiRequest.ageInDays())
                 .lastWateredDate(createPlantApiRequest.lastWateredDate())
                 .wateringIntervalInDays(createPlantApiRequest.wateringIntervalInDays())
+                .build();
+    }
+
+    private static UpdatePlantRequest from(UpdatePlantApiRequest updatePlantApiRequest) {
+        return UpdatePlantRequest.builder().name(updatePlantApiRequest.name())
+                .ageInDays(updatePlantApiRequest.ageInDays())
+                .lastWateredDate(updatePlantApiRequest.lastWateredDate())
+                .wateringIntervalInDays(updatePlantApiRequest.wateringIntervalInDays())
                 .build();
     }
 

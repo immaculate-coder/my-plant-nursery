@@ -11,6 +11,7 @@ import com.plantNursery.GardeniaDreams.core.PlantPersister;
 import com.plantNursery.GardeniaDreams.core.exceptions.PlantNotFoundException;
 import com.plantNursery.GardeniaDreams.core.model.CreatePlantRequest;
 import com.plantNursery.GardeniaDreams.core.model.Plant;
+import com.plantNursery.GardeniaDreams.core.model.UpdatePlantRequest;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,6 +26,8 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doThrow;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -140,6 +143,53 @@ public class PlantControllerIntegrationTest {
                 .andExpect(jsonPath("$.message").value(errorMessage));
     }
 
+    @Test
+    void updatePlantById_shouldReturnNotFound() throws Exception {
+        String nonExistentPlantId = "invalid-id";
+        String errorMessage = "Plant not found with id : " + nonExistentPlantId;
+
+        doThrow(new PlantNotFoundException("Plant not found with id : " + nonExistentPlantId))
+                .when(plantPersister).updatePlant(anyString(), any(UpdatePlantRequest.class));
+
+        mockMvc.perform(patch("/api/v1/plants/{id}", nonExistentPlantId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(getUpdatePlantRequest())))
+                .andExpect(status().isNotFound())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.message").value(errorMessage));
+    }
+
+    @Test
+    void updatePlantById_shouldReturnPlantApiResponse() throws Exception {
+        String plantId = "test-id-1";
+        Plant mockedPlant = getMockedPlantList().getFirst();
+        Mockito.when(plantPersister.updatePlant(anyString(), any(UpdatePlantRequest.class))).thenReturn(mockedPlant);
+
+        PlantApiResponse expectedResponse = toPlantApiResponse(mockedPlant);
+
+        mockMvc.perform(patch("/api/v1/plants/{id}", plantId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(getUpdatePlantRequest())))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.id").value(expectedResponse.id()))
+                .andExpect(content().json(objectMapper.writeValueAsString(expectedResponse)));
+    }
+
+    private static UpdatePlantRequest getUpdatePlantRequest() {
+        Date yesterday = new Date(System.currentTimeMillis() - 24 * 60 * 60 * 1000);
+        String plantName = "Test Updated Plant";
+        int ageInDays = 200;
+        int wateringIntervalInDays = 10;
+
+        return UpdatePlantRequest.builder()
+                .name(plantName)
+                .ageInDays(ageInDays)
+                .lastWateredDate(yesterday)
+                .wateringIntervalInDays(wateringIntervalInDays)
+                .build();
+    }
+
 
     private static CreatePlantApiResponse getExpectedResponse(String mockedPlantId) {
         return CreatePlantApiResponse.builder()
@@ -167,18 +217,21 @@ public class PlantControllerIntegrationTest {
     }
 
     private static List<Plant> getMockedPlantList() {
+        Date today = new Date();
         return Arrays.asList(
                 Plant.builder()
                         .id("test-id-1")
                         .name("Rose")
                         .ageInDays(120)
                         .wateringIntervalInDays(7)
+                        .lastWateredDate(today)
                         .build(),
                 Plant.builder()
                         .id("test-id-2")
                         .name("Tulip")
                         .ageInDays(90)
                         .wateringIntervalInDays(5)
+                        .lastWateredDate(today)
                         .build()
         );
     }

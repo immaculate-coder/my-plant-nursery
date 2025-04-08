@@ -2,6 +2,8 @@ package com.plantNursery.GardeniaDreams.core;
 
 import com.plantNursery.GardeniaDreams.core.exceptions.PlantNotFoundException;
 import com.plantNursery.GardeniaDreams.core.model.CreatePlantRequest;
+import com.plantNursery.GardeniaDreams.core.model.Plant;
+import com.plantNursery.GardeniaDreams.core.model.UpdatePlantRequest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -57,6 +59,62 @@ public class PlantPersistenceServiceTest {
 
         assertEquals("Plant not found with id : " + plantId, exception.getMessage());
         verify(plantStorageManager, times(1)).deletePlant(plantId);
+    }
+
+    @Test
+    void updatePlant_shouldReturnUpdatedPlant() {
+        String plantId = "test-id-2";
+        UpdatePlantRequest updatePlantRequest = getUpdatePlantRequest();
+
+        Plant expectedPlant = getTestPlant();
+        when(plantStorageManager.updatePlant(anyString(), any(UpdatePlantRequest.class))).thenReturn(expectedPlant);
+
+        Plant actualPlant = persistenceService.updatePlant(plantId, updatePlantRequest);
+
+        verify(plantStorageManager).updatePlant(plantId, updatePlantRequest);
+        assertEquals(expectedPlant, actualPlant, "Updated plant does not match expected");
+    }
+
+    @Test
+    void updatePlant_shouldThrowPlantNotFoundException() {
+        String plantId = "non-existent-id";
+        UpdatePlantRequest updatePlantRequest = UpdatePlantRequest.builder().build();
+
+        doThrow(new PlantNotFoundException("Plant not found with id : " + plantId))
+                .when(plantStorageManager).updatePlant(anyString(), any(UpdatePlantRequest.class));
+
+        PlantNotFoundException exception = assertThrows(
+                PlantNotFoundException.class,
+                () -> persistenceService.updatePlant(plantId, updatePlantRequest),
+                "Expected updatePlant() to throw PlantNotFoundException"
+        );
+
+        assertEquals("Plant not found with id : " + plantId, exception.getMessage());
+        verify(plantStorageManager, times(1)).updatePlant(plantId, updatePlantRequest);
+    }
+
+    private static UpdatePlantRequest getUpdatePlantRequest() {
+        Date yesterday = new Date(System.currentTimeMillis() - 24 * 60 * 60 * 1000);
+        String plantName = "Test Updated Plant";
+        int ageInDays = 200;
+        int wateringIntervalInDays = 10;
+
+        return UpdatePlantRequest.builder()
+                .name(plantName)
+                .ageInDays(ageInDays)
+                .lastWateredDate(yesterday)
+                .wateringIntervalInDays(wateringIntervalInDays)
+                .build();
+    }
+
+    private static Plant getTestPlant() {
+        Date yesterday = new Date(System.currentTimeMillis() - 24 * 60 * 60 * 1000);
+        return Plant.builder()
+                .name("Test Updated Plant")
+                .ageInDays(200)
+                .wateringIntervalInDays(10)
+                .lastWateredDate(yesterday)
+                .build();
     }
 
     private static CreatePlantRequest getRequest() {
