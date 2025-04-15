@@ -2,6 +2,8 @@ package com.plantNursery.GardeniaDreams.infra.mongo;
 
 import com.plantNursery.GardeniaDreams.core.exceptions.PlantNotFoundException;
 import com.plantNursery.GardeniaDreams.core.model.CreatePlantRequest;
+import com.plantNursery.GardeniaDreams.core.model.Plant;
+import com.plantNursery.GardeniaDreams.core.model.UpdatePlantRequest;
 import com.plantNursery.GardeniaDreams.infra.mongo.entities.PlantDocument;
 import com.plantNursery.GardeniaDreams.infra.mongo.repo.MongoPlantRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -78,6 +80,49 @@ class MongoPlantStorageMangerIntegrationTest {
                 .isInstanceOf(PlantNotFoundException.class)
                 .hasMessage("Plant not found with id : " + testPlantId);
 
+    }
+
+    @Test
+    void updatePlant_shouldUpdateAndReturnPlant() {
+        CreatePlantRequest createRequest = getTestPlantRequest();
+        PlantDocument savedPlant = repository.save(getTestPlantDocument(createRequest));
+        String plantId = savedPlant.getId();
+
+        assertThat(plantId).isNotNull();
+
+        UpdatePlantRequest updatePlantRequest = getTestUpdatePlantRequest();
+
+        Plant updatedPlant = storageManger.updatePlant(plantId, updatePlantRequest);
+
+        assertThat(updatedPlant.id()).isEqualTo(plantId);
+        assertThat(updatedPlant.name()).isEqualTo(updatePlantRequest.name());
+        assertThat(updatedPlant.ageInDays()).isEqualTo(updatePlantRequest.ageInDays());
+        assertThat(updatedPlant.wateringIntervalInDays()).isEqualTo(updatePlantRequest.wateringIntervalInDays());
+        assertThat(updatedPlant.lastWateredDate()).isEqualTo(updatePlantRequest.lastWateredDate());
+    }
+
+    @Test
+    void updatePlant_shouldThrowPlantNotFoundException() {
+        String testPlantId = "invalid-plant-id";
+        UpdatePlantRequest updateRequest = getTestUpdatePlantRequest();
+
+        assertThatThrownBy(() -> storageManger.updatePlant(testPlantId, updateRequest))
+                .isInstanceOf(PlantNotFoundException.class)
+                .hasMessage("Plant not found with id: " + testPlantId);
+    }
+
+    private static UpdatePlantRequest getTestUpdatePlantRequest() {
+        Date yesterday = new Date(System.currentTimeMillis() - 24 * 60 * 60 * 1000);
+        String plantName = "Test Updated Plant";
+        int ageInDays = 200;
+        int wateringIntervalInDays = 10;
+
+        return UpdatePlantRequest.builder()
+                .name(plantName)
+                .ageInDays(ageInDays)
+                .lastWateredDate(yesterday)
+                .wateringIntervalInDays(wateringIntervalInDays)
+                .build();
     }
 
     private static CreatePlantRequest getTestPlantRequest() {
