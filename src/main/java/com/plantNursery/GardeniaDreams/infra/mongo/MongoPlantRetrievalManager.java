@@ -39,6 +39,7 @@ public class MongoPlantRetrievalManager implements PlantRetrievalManager {
                 .wateringIntervalInDays(plantDocument.getWateringIntervalInDays())
                 .ageInDays(plantDocument.getAgeInDays())
                 .lastWateredDate(plantDocument.getLastWateredDate())
+                .isFruitBearing(plantDocument.getIsFruitBearing())
                 .build();
     }
 }

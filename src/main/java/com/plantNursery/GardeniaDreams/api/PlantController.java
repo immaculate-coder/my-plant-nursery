@@ -6,6 +6,7 @@ import com.plantNursery.GardeniaDreams.api.response.CreatePlantApiResponse;
 import com.plantNursery.GardeniaDreams.api.response.GetAllPlantsApiResponse;
 import com.plantNursery.GardeniaDreams.api.response.PlantApiResponse;
 import com.plantNursery.GardeniaDreams.core.PlantFetcher;
+import com.plantNursery.GardeniaDreams.core.PlantOperations;
 import com.plantNursery.GardeniaDreams.core.PlantPersister;
 import com.plantNursery.GardeniaDreams.core.model.CreatePlantRequest;
 import com.plantNursery.GardeniaDreams.core.model.Plant;
@@ -25,6 +26,7 @@ import java.util.List;
 public class PlantController {
     private PlantPersister plantPersister;
     private PlantFetcher plantFetcher;
+    private PlantOperations plantOperations;
 
     @Operation(
             summary = "Persist a new plant",
@@ -93,12 +95,28 @@ public class PlantController {
         return ResponseEntity.ok(response);
     }
 
+    @Operation(
+            summary = "water plant",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "Plant watered successfully"),
+                    @ApiResponse(responseCode = "404", description = "Plant not found"),
+                    @ApiResponse(responseCode = "400", description = "Plant can't be watered")
+            }
+    )
+    @PatchMapping("/{id}/waterPlant")
+    ResponseEntity<PlantApiResponse> waterPlant(@PathVariable String id) {
+        PlantApiResponse response = from(plantOperations.waterPlant(id));
+        return ResponseEntity.ok(response);
+    }
+
+
     private static CreatePlantRequest from(CreatePlantApiRequest createPlantApiRequest) {
         return CreatePlantRequest.builder()
                 .name(createPlantApiRequest.name())
                 .ageInDays(createPlantApiRequest.ageInDays())
                 .lastWateredDate(createPlantApiRequest.lastWateredDate())
                 .wateringIntervalInDays(createPlantApiRequest.wateringIntervalInDays())
+                .isFruitBearing(createPlantApiRequest.isFruitBearing())
                 .build();
     }
 

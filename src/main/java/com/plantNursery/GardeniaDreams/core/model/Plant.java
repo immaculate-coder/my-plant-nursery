@@ -5,5 +5,5 @@ import lombok.Builder;
 import java.util.Date;
 
 @Builder
-public record Plant(String id, String name, Integer ageInDays, Date lastWateredDate, Integer wateringIntervalInDays) {
+public record Plant(String id, String name, Integer ageInDays, Date lastWateredDate, Integer wateringIntervalInDays, Boolean isFruitBearing) {
 }

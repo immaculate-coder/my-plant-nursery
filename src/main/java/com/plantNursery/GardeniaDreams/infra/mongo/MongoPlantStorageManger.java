@@ -60,6 +60,7 @@ public class MongoPlantStorageManger implements PlantStorageManager {
                 .wateringIntervalInDays(createPlantRequest.wateringIntervalInDays())
                 .ageInDays(createPlantRequest.ageInDays())
                 .lastWateredDate(createPlantRequest.lastWateredDate())
+                .isFruitBearing(createPlantRequest.isFruitBearing())
                 .build();
     }
 

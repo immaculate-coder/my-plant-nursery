@@ -7,6 +7,7 @@ import com.plantNursery.GardeniaDreams.api.response.CreatePlantApiResponse;
 import com.plantNursery.GardeniaDreams.api.response.GetAllPlantsApiResponse;
 import com.plantNursery.GardeniaDreams.api.response.PlantApiResponse;
 import com.plantNursery.GardeniaDreams.core.PlantFetcher;
+import com.plantNursery.GardeniaDreams.core.PlantOperations;
 import com.plantNursery.GardeniaDreams.core.PlantPersister;
 import com.plantNursery.GardeniaDreams.core.exceptions.PlantNotFoundException;
 import com.plantNursery.GardeniaDreams.core.model.CreatePlantRequest;
@@ -47,6 +48,9 @@ public class PlantControllerIntegrationTest {
 
     @MockitoBean
     private PlantFetcher plantFetcher;
+
+    @MockitoBean
+    private PlantOperations plantOperations;
 
     @Test
     void createNewPlant_shouldReturnId() throws Exception {

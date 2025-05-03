@@ -17,4 +17,5 @@ public class PlantDocument {
     private Integer ageInDays;
     private Date lastWateredDate;
     private Integer wateringIntervalInDays;
+    private Boolean isFruitBearing;
 }
