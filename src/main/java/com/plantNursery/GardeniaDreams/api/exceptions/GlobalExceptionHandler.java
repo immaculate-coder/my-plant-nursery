@@ -26,8 +26,8 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(WateringNotAllowedException.class)
     public ResponseEntity<ApiErrorResponse> handlePlantNotWateredException(WateringNotAllowedException ex) {
         return ResponseEntity
-                .status(HttpStatus.BAD_REQUEST)
-                .body(ApiErrorResponse.of(HttpStatus.BAD_REQUEST, ex.getMessage()));
+                .status(HttpStatus.CONFLICT)
+                .body(ApiErrorResponse.of(HttpStatus.CONFLICT, ex.getMessage()));
 
     }
 
