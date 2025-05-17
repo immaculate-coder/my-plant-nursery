@@ -4,6 +4,8 @@ import com.plantNursery.GardeniaDreams.core.exceptions.WateringNotAllowedExcepti
 import com.plantNursery.GardeniaDreams.core.model.Plant;
 import com.plantNursery.GardeniaDreams.core.model.UpdatePlantRequest;
 import com.plantNursery.GardeniaDreams.core.utils.PlantWateringValidator;
+import com.plantNursery.GardeniaDreams.core.watering.factory.WateringStrategyFactory;
+import com.plantNursery.GardeniaDreams.core.watering.strategy.WateringStrategy;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -24,15 +26,23 @@ public class PlantIrrigatorService implements PlantIrrigator {
         }
 
         Plant plant = plantRetrievalManager.getPlantById(plantId);
-        UpdatePlantRequest updatePlantRequest = new UpdatePlantRequest(plant.name(), plant.ageInDays(), new Date(), plant.wateringIntervalInDays(), plant.isFruitBearing());
-        if(plant.isFruitBearing() &&
-           !PlantWateringValidator.canWaterFruitBearingPlant(plant.lastWateredDate(), plant.wateringIntervalInDays())
-        ) {
-            throw new WateringNotAllowedException("Fruit bearing plant cannot be watered multiple times within watering interval");
-        } else if(!PlantWateringValidator.canWaterNonFruitBearingPlant(plant.lastWateredDate())) {
-            throw new WateringNotAllowedException("Non fruit bearing plant cannot be watered multiple times in same day");
+
+        WateringStrategy strategy = WateringStrategyFactory.getStrategy(plant.isFruitBearing());
+        boolean canWater = strategy.canWater(plant.lastWateredDate(), plant.wateringIntervalInDays());
+        if(!canWater) {
+            throw new WateringNotAllowedException("Watering not allowed based on strategy");
         }
 
-        return plantStorageManager.updatePlant(plantId,updatePlantRequest);
+        return plantStorageManager.updatePlant(plantId,toUpdatePlantRequest(plant));
+    }
+
+    private static UpdatePlantRequest toUpdatePlantRequest(Plant plant) {
+        return UpdatePlantRequest.builder()
+                .name(plant.name())
+                .ageInDays(plant.ageInDays())
+                .lastWateredDate(new Date())
+                .wateringIntervalInDays(plant.wateringIntervalInDays())
+                .isFruitBearing(plant.isFruitBearing())
+                .build();
     }
 }
