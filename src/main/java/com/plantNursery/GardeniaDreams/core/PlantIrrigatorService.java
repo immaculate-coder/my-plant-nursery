@@ -1,6 +1,6 @@
 package com.plantNursery.GardeniaDreams.core;
 
-import com.plantNursery.GardeniaDreams.core.exceptions.PlantNotWateredException;
+import com.plantNursery.GardeniaDreams.core.exceptions.WateringNotAllowedException;
 import com.plantNursery.GardeniaDreams.core.model.Plant;
 import com.plantNursery.GardeniaDreams.core.model.UpdatePlantRequest;
 import com.plantNursery.GardeniaDreams.core.utils.PlantWateringValidator;
@@ -12,7 +12,7 @@ import java.util.Date;
 
 @Service
 @AllArgsConstructor
-public class PlantOperationsService implements PlantOperations{
+public class PlantIrrigatorService implements PlantIrrigator {
     private PlantRetrievalManager plantRetrievalManager;
     private PlantStorageManager plantStorageManager;
 
@@ -20,7 +20,7 @@ public class PlantOperationsService implements PlantOperations{
     public Plant waterPlant(String plantId) {
         boolean isWateringPossible = PlantWateringValidator.canWaterPlant(LocalTime.now(), LocalTime.of(6, 0), LocalTime.of(20, 0));
         if(!isWateringPossible) {
-            throw new PlantNotWateredException("Plant cannot be watered at night time");
+            throw new WateringNotAllowedException("Plant cannot be watered at night time");
         }
 
         Plant plant = plantRetrievalManager.getPlantById(plantId);
@@ -28,9 +28,9 @@ public class PlantOperationsService implements PlantOperations{
         if(plant.isFruitBearing() &&
            !PlantWateringValidator.canWaterFruitBearingPlant(plant.lastWateredDate(), plant.wateringIntervalInDays())
         ) {
-            throw new PlantNotWateredException("Fruit bearing plant cannot be watered multiple times within watering interval");
+            throw new WateringNotAllowedException("Fruit bearing plant cannot be watered multiple times within watering interval");
         } else if(!PlantWateringValidator.canWaterNonFruitBearingPlant(plant.lastWateredDate())) {
-            throw new PlantNotWateredException("Non fruit bearing plant cannot be watered multiple times in same day");
+            throw new WateringNotAllowedException("Non fruit bearing plant cannot be watered multiple times in same day");
         }
 
         return plantStorageManager.updatePlant(plantId,updatePlantRequest);
