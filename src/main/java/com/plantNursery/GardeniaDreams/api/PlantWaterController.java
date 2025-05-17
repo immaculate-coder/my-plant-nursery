@@ -7,10 +7,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PatchMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("api/v1/plants")
@@ -26,7 +23,7 @@ public class PlantWaterController {
                     @ApiResponse(responseCode = "409", description = "Watering not allowed")
             }
     )
-    @PatchMapping("/{id}/waterPlant")
+    @PostMapping("/{id}/waterPlant")
     ResponseEntity<PlantApiResponse> waterPlant(@PathVariable String id) {
         PlantApiResponse response = from(plantIrrigator.waterPlant(id));
         return ResponseEntity.ok(response);
