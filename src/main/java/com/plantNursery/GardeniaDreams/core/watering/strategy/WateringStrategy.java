@@ -3,5 +3,5 @@ package com.plantNursery.GardeniaDreams.core.watering.strategy;
 import com.plantNursery.GardeniaDreams.core.model.Plant;
 
 public interface WateringStrategy {
-    boolean canWater(Plant plant);
+    void canWater(Plant plant);
 }
