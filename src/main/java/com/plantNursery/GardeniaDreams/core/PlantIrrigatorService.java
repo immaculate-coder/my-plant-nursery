@@ -27,8 +27,8 @@ public class PlantIrrigatorService implements PlantIrrigator {
 
         Plant plant = plantRetrievalManager.getPlantById(plantId);
 
-        WateringStrategy strategy = WateringStrategyFactory.getStrategy(plant.isFruitBearing());
-        boolean canWater = strategy.canWater(plant.lastWateredDate(), plant.wateringIntervalInDays());
+        WateringStrategy strategy = WateringStrategyFactory.getStrategy(plant);
+        boolean canWater = strategy.canWater(plant);
         if(!canWater) {
             throw new WateringNotAllowedException("Watering not allowed based on strategy");
         }

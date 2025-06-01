@@ -1,7 +1,7 @@
 package com.plantNursery.GardeniaDreams.core.watering.strategy;
 
-import java.util.Date;
+import com.plantNursery.GardeniaDreams.core.model.Plant;
 
 public interface WateringStrategy {
-    boolean canWater(Date lastWateredDate, Integer wateringInterval);
+    boolean canWater(Plant plant);
 }

@@ -23,7 +23,7 @@ public class PlantWaterController {
                     @ApiResponse(responseCode = "409", description = "Watering not allowed")
             }
     )
-    @PostMapping("/{id}/waterPlant")
+    @PostMapping("/{id}/water")
     ResponseEntity<PlantApiResponse> waterPlant(@PathVariable String id) {
         PlantApiResponse response = from(plantIrrigator.waterPlant(id));
         return ResponseEntity.ok(response);
