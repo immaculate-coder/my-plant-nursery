@@ -3,6 +3,7 @@ package com.plantNursery.GardeniaDreams.api;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.plantNursery.GardeniaDreams.api.response.PlantApiResponse;
 import com.plantNursery.GardeniaDreams.core.PlantIrrigator;
+import com.plantNursery.GardeniaDreams.core.exceptions.WateringNotAllowedException;
 import com.plantNursery.GardeniaDreams.core.model.Plant;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -51,6 +52,21 @@ public class PlantWaterControllerIntegrationTest {
                 .andExpect(jsonPath("$.id").value(expectedResponse.id()))
                 .andExpect(content().json(objectMapper.writeValueAsString(expectedResponse)));
     }
+
+    @Test
+    void waterPlant_shouldReturnConflict_whenWateringNotAllowed() throws Exception {
+        String plantId = "test-id-1";
+        String errorMessage = "Plant cannot be watered at night time";
+
+        when(plantIrrigator.waterPlant(plantId))
+                .thenThrow(new WateringNotAllowedException(errorMessage));
+
+        mockMvc.perform(post("/api/v1/plants/{id}/water", plantId))
+                .andExpect(status().isConflict())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.message").value(errorMessage));
+    }
+
 
     private PlantApiResponse toPlantApiResponse(Plant plant) {
         return PlantApiResponse.builder()
