@@ -99,6 +99,7 @@ public class PlantController {
                 .ageInDays(createPlantApiRequest.ageInDays())
                 .lastWateredDate(createPlantApiRequest.lastWateredDate())
                 .wateringIntervalInDays(createPlantApiRequest.wateringIntervalInDays())
+                .isFruitBearing(createPlantApiRequest.isFruitBearing())
                 .build();
     }
 
