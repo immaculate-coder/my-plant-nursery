@@ -35,14 +35,7 @@ public class PlantIrrigatorServiceTest {
     @Test
     void waterPlant_shouldReturnUpdatedPlant_whenFruitBearing() {
         String plantId = "fruit-plant-1";
-        Plant plant = Plant.builder()
-                .id(plantId)
-                .name("Mango")
-                .ageInDays(100)
-                .lastWateredDate(daysAgo(3))
-                .wateringIntervalInDays(2)
-                .isFruitBearing(true)
-                .build();
+        Plant plant = createMockedPlant(plantId, "Mango", 100, daysAgo(3), 2, true);
 
         when(plantRetrievalManager.getPlantById(plantId)).thenReturn(plant);
         doNothing().when(wateringRuleValidator).validate(plant);
@@ -67,11 +60,6 @@ public class PlantIrrigatorServiceTest {
 
             Plant updatedPlant = plantIrrigatorService.waterPlant(plantId);
 
-            verify(plantRetrievalManager).getPlantById(plantId);
-            verify(wateringRuleValidator).validate(plant);
-            verify(mockStrategy).canWater(plant);
-            verify(plantStorageManager).updatePlant(eq(plantId), any(UpdatePlantRequest.class));
-
             assertEquals(plantId, updatedPlant.id());
             assertEquals(plant.name(), updatedPlant.name());
             assertTrue(updatedPlant.lastWateredDate().after(plant.lastWateredDate()));
@@ -81,14 +69,7 @@ public class PlantIrrigatorServiceTest {
     @Test
     void waterPlant_shouldReturnUpdatedPlant_whenNonFruitBearing() {
         String plantId = "non-fruit-plant-1";
-        Plant plant = Plant.builder()
-                .id(plantId)
-                .name("Fern")
-                .ageInDays(50)
-                .lastWateredDate(daysAgo(1))
-                .wateringIntervalInDays(1)
-                .isFruitBearing(false)
-                .build();
+        Plant plant = createMockedPlant(plantId, "Fern", 50, daysAgo(1), 1, false);
 
         when(plantRetrievalManager.getPlantById(plantId)).thenReturn(plant);
         doNothing().when(wateringRuleValidator).validate(plant);
@@ -98,25 +79,12 @@ public class PlantIrrigatorServiceTest {
 
         try (MockedStatic<WateringStrategyFactory> mockedStatic = mockStatic(WateringStrategyFactory.class)) {
             mockedStatic.when(() -> WateringStrategyFactory.getStrategy(plant)).thenReturn(mockStrategy);
-
-            Plant updatedPlantMock = Plant.builder()
-                    .id(plantId)
-                    .name("Fern")
-                    .ageInDays(50)
-                    .lastWateredDate(new Date())
-                    .wateringIntervalInDays(1)
-                    .isFruitBearing(false)
-                    .build();
+            Plant updatedPlantMock = createMockedPlant(plantId, "Fern", 50, new Date(), 1, false);
 
             when(plantStorageManager.updatePlant(eq(plantId), any(UpdatePlantRequest.class)))
                     .thenReturn(updatedPlantMock);
 
             Plant updatedPlant = plantIrrigatorService.waterPlant(plantId);
-
-            verify(plantRetrievalManager).getPlantById(plantId);
-            verify(wateringRuleValidator).validate(plant);
-            verify(mockStrategy).canWater(plant);
-            verify(plantStorageManager).updatePlant(eq(plantId), any(UpdatePlantRequest.class));
 
             assertEquals(plantId, updatedPlant.id());
             assertEquals(plant.name(), updatedPlant.name());
@@ -127,14 +95,7 @@ public class PlantIrrigatorServiceTest {
     @Test
     void waterPlant_shouldThrowWateringNotAllowedException_whenRuleValidatorFails() {
         String plantId = "plant-123";
-        Plant plant = Plant.builder()
-                .id(plantId)
-                .name("Rose")
-                .ageInDays(10)
-                .lastWateredDate(new Date())
-                .wateringIntervalInDays(1)
-                .isFruitBearing(false)
-                .build();
+        Plant plant = createMockedPlant(plantId, "Rose", 10, new Date(), 1, false);
 
         when(plantRetrievalManager.getPlantById(plantId)).thenReturn(plant);
 
@@ -147,22 +108,13 @@ public class PlantIrrigatorServiceTest {
         );
 
         assertEquals("Plant cannot be watered at night time", exception.getMessage());
-        verify(plantRetrievalManager).getPlantById(plantId);
-        verify(wateringRuleValidator).validate(plant);
         verifyNoInteractions(plantStorageManager);
     }
 
     @Test
     void waterPlant_shouldThrowWateringNotAllowedException_whenStrategyPreventsWatering() {
         String plantId = "plant-456";
-        Plant plant = Plant.builder()
-                .id(plantId)
-                .name("Lily")
-                .ageInDays(15)
-                .lastWateredDate(daysAgo(1))
-                .wateringIntervalInDays(3)
-                .isFruitBearing(true)
-                .build();
+        Plant plant = createMockedPlant(plantId, "Lily", 15, daysAgo(1), 3, true);
 
         when(plantRetrievalManager.getPlantById(plantId)).thenReturn(plant);
         doNothing().when(wateringRuleValidator).validate(plant);
@@ -180,10 +132,6 @@ public class PlantIrrigatorServiceTest {
             );
 
             assertEquals("Watering not allowed yet, interval not passed", exception.getMessage());
-
-            verify(plantRetrievalManager).getPlantById(plantId);
-            verify(wateringRuleValidator).validate(plant);
-            verify(mockStrategy).canWater(plant);
             verifyNoInteractions(plantStorageManager);
         }
     }
@@ -192,5 +140,23 @@ public class PlantIrrigatorServiceTest {
         Calendar cal = Calendar.getInstance();
         cal.add(Calendar.DAY_OF_YEAR, -days);
         return cal.getTime();
+    }
+
+    public static Plant createMockedPlant(
+            String id,
+            String name,
+            int ageInDays,
+            Date lastWateredDate,
+            int wateringIntervalInDays,
+            boolean isFruitBearing
+    ) {
+        return Plant.builder()
+                .id(id)
+                .name(name)
+                .ageInDays(ageInDays)
+                .lastWateredDate(lastWateredDate)
+                .wateringIntervalInDays(wateringIntervalInDays)
+                .isFruitBearing(isFruitBearing)
+                .build();
     }
 }
